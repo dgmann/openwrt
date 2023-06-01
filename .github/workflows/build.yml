@@ -41,7 +41,8 @@ jobs:
       - name: Build OpenWRT Image
         run: |
           mkdir ./bin
-          podman run --rm -it \
+          chmod 777 ./bin
+          podman run --rm \
             -v ./bin/:/builder/bin:z \
             -v ./files/:/builder/files:z \
             -v ./scripts/build.sh:/builder/build.sh:z \
