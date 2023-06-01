@@ -25,10 +25,10 @@ jobs:
           mkdir -p ./files/usr/bin/
 
           wget -O ./files/usr/bin/netclient https://github.com/gravitl/netclient/releases/download/${NETCLIENT_VERSION}/netclient-linux-arm64 && \
-              chmod +x "${SCRIPT_DIR}"/files/usr/bin/netclient
+              chmod +x ./files/usr/bin/netclient
           
           wget -O ./files/usr/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/download/${CLOUDFLARED_VERSION}/cloudflared-linux-arm64 && \
-              chmod +x "${SCRIPT_DIR}"/files/usr/bin/cloudflared
+              chmod +x ./files/usr/bin/cloudflared
         env:
           NETCLIENT_VERSION: ${{ matrix.netclient_version }}
           CLOUDFLARED_VERSION: ${{ matrix.cloudflared_version }}
