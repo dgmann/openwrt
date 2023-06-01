@@ -1,0 +1,51 @@
+name: Build Image
+
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        openwrt_version: ["22.03"]
+        netclient_version: ["v0.18.7"]
+        cloudflared_version: ["2023.1.0"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download Dependencies
+        run: |
+          mkdir -p ./files/usr/bin/
+
+          wget -O ./files/usr/bin/netclient https://github.com/gravitl/netclient/releases/download/${NETCLIENT_VERSION}/netclient-linux-arm64 && \
+              chmod +x "${SCRIPT_DIR}"/files/usr/bin/netclient
+          
+          wget -O ./files/usr/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/download/${CLOUDFLARED_VERSION}/cloudflared-linux-arm64 && \
+              chmod +x "${SCRIPT_DIR}"/files/usr/bin/cloudflared
+        env:
+          NETCLIENT_VERSION: ${{ matrix.netclient_version }}
+          CLOUDFLARED_VERSION: ${{ matrix.cloudflared_version }}
+
+      - name: Define Packages
+        id: packages
+        run: echo "packages=$(yq '.packages | join(" ")' config.yaml)" >> $GITHUB_OUTPUT
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          podman run --rm -it \
+            -v ./bin/:/builder/bin:z \
+            -v ./files/:/builder/files:z \
+            -v ./scripts/build.sh:/builder/build.sh:z \
+            -e PACKAGES \
+            "$IMAGE" ./build.sh
+        env:
+          IMAGE: openwrt/imagebuilder:armvirt-64-openwrt-${{ matrix.openwrt_version }}
+          PACKAGES: ${{ steps.packages.outputs.packages }}

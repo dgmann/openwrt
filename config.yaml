@@ -1,0 +1,12 @@
+packages:
+  - luci
+  - adguardhome
+  - htop
+  - irqbalance
+  - kmod-wireguard
+  - luci-app-bcp38
+  - luci-app-sqm
+  - sqm-scripts
+  - luci-app-wireguard
+  - luci-proto-wireguard
+  - wireguard-tools

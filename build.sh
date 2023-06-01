@@ -2,7 +2,7 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-PACKAGES="luci adguardhome htop irqbalance kmod-wireguard luci-app-bcp38 luci-app-sqm luci-app-wireguard luci-proto-wireguard sqm-scripts wireguard-tools luci-app-acme acme-dnsapi"
+PACKAGES=$(yq '.packages | join(" ")' config.yaml)
 
 mkdir -p "${SCRIPT_DIR}"/files/usr/bin/
 
@@ -15,8 +15,9 @@ wget -O "${SCRIPT_DIR}"/files/usr/bin/cloudflared https://github.com/cloudflare/
 mkdir "${SCRIPT_DIR}"/bin/
 IMAGE=openwrt/imagebuilder:armvirt-64-openwrt-22.03
 podman pull "$IMAGE"
+sudo rm -rf "${SCRIPT_DIR}"/bin/*
 podman run --rm -it \
     -v "${SCRIPT_DIR}"/bin/:/builder/bin:z \
     -v "${SCRIPT_DIR}"/files/:/builder/files:z \
-    -v "${SCRIPT_DIR}"/.config:/builder/.config:z \
-    "$IMAGE" make image PACKAGES="${PACKAGES}" FILES="files"
+    -v "${SCRIPT_DIR}"/scripts/build.sh:/builder/build.sh:z \
+    "$IMAGE" ./build.sh 
