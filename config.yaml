@@ -10,3 +10,5 @@ packages:
   - luci-app-wireguard
   - luci-proto-wireguard
   - wireguard-tools
+config:
+  CONFIG_TARGET_ROOTFS_PARTSIZE: 150

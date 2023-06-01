@@ -37,6 +37,9 @@ jobs:
         id: packages
         run: echo "packages=$(yq '.packages | join(" ")' config.yaml)" >> $GITHUB_OUTPUT
 
+      - name: Define .config replacements
+        id: config
+        run: echo "config=$(yq '.config | to_entries | map("s/" + .key + "=.*/" + .key + "=" + .value + "/")| join(";")' config.yaml)" >> $GITHUB_OUTPUT
 
       - name: Build OpenWRT Image
         run: |
@@ -45,9 +48,10 @@ jobs:
           podman run --rm \
             -v ./bin/:/builder/bin:z \
             -v ./files/:/builder/files:z \
-            -v ./scripts/build.sh:/builder/build.sh:z \
+            -v ./build.sh:/builder/build.sh:z \
             -e PACKAGES \
             "$IMAGE" ./build.sh
         env:
           IMAGE: openwrt/imagebuilder:armvirt-64-openwrt-${{ matrix.openwrt_version }}
           PACKAGES: ${{ steps.packages.outputs.packages }}
+          CONFIG: ${{ steps.packages.outputs.config }}
