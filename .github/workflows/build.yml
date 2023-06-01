@@ -55,3 +55,15 @@ jobs:
           IMAGE: openwrt/imagebuilder:armvirt-64-openwrt-${{ matrix.openwrt_version }}
           PACKAGES: ${{ steps.packages.outputs.packages }}
           CONFIG: ${{ steps.packages.outputs.config }}
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: rootfs
+          path: bin/targets/armvirt/64/openwrt-22.03-snapshot-r20145-30fca5413b-armvirt-64-default-rootfs.tar.gz
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "bin/targets/armvirt/64/default-rootfs.tar.gz,bin/targets/armvirt/64/rootfs-squashfs.img.gz,bin/targets/armvirt/64/Image"
+          allowUpdates: true
+          removeArtifacts: true
+          tag: ${{ matrix.openwrt_version }}
