@@ -16,6 +16,8 @@ jobs:
         openwrt_version: ["22.03"]
         netclient_version: ["v0.18.7"]
         cloudflared_version: ["2023.1.0"]
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v3
