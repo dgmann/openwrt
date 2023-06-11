@@ -1,0 +1,72 @@
+name: Build Image
+
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        openwrt_version: ["22.03"]
+        netclient_version: ["v0.18.7"]
+        cloudflared_version: ["2023.1.0"]
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download Dependencies
+        run: |
+          mkdir -p ./files/usr/bin/
+
+          wget -O ./files/usr/bin/netclient https://github.com/gravitl/netclient/releases/download/${NETCLIENT_VERSION}/netclient-linux-arm64 && \
+              chmod +x ./files/usr/bin/netclient
+          
+          wget -O ./files/usr/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/download/${CLOUDFLARED_VERSION}/cloudflared-linux-arm64 && \
+              chmod +x ./files/usr/bin/cloudflared
+        env:
+          NETCLIENT_VERSION: ${{ matrix.netclient_version }}
+          CLOUDFLARED_VERSION: ${{ matrix.cloudflared_version }}
+
+      - name: Define Packages
+        id: packages
+        run: echo "packages=$(yq '.packages | join(" ")' config.yaml)" >> $GITHUB_OUTPUT
+
+      - name: Define .config replacements
+        id: config
+        run: echo "config=$(yq '.config | to_entries | map("s/" + .key + "=.*/" + .key + "=" + .value + "/")| join(";")' config.yaml)" >> $GITHUB_OUTPUT
+
+      - name: Build OpenWRT Image
+        run: |
+          mkdir ./bin
+          chmod 777 ./bin
+          podman run --rm \
+            -v ./bin/:/builder/bin:z \
+            -v ./files/:/builder/files:z \
+            -v ./build.sh:/builder/build.sh:z \
+            -e PACKAGES \
+            "$IMAGE" ./build.sh
+          
+          mkdir ./release
+          cp bin/targets/armvirt/64/*-default-rootfs.tar.gz ./release/default-rootfs.tar.gz
+          cp bin/targets/armvirt/64/*rootfs-squashfs.img.gz ./release/rootfs-squashfs.img.gz
+          cp bin/targets/armvirt/64/*rootfs-ext4.img.gz ./release/rootfs-ext4.img.gz
+          cp bin/targets/armvirt/64/*Image ./release/Image
+        env:
+          IMAGE: openwrt/imagebuilder:armvirt-64-openwrt-${{ matrix.openwrt_version }}
+          PACKAGES: ${{ steps.packages.outputs.packages }}
+          CONFIG: ${{ steps.packages.outputs.config }}
+
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "./release/*"
+          allowUpdates: true
+          removeArtifacts: true
+          tag: ${{ matrix.openwrt_version }}
