@@ -62,7 +62,7 @@ jobs:
         env:
           IMAGE: openwrt/imagebuilder:armvirt-64-openwrt-${{ matrix.openwrt_version }}
           PACKAGES: ${{ steps.packages.outputs.packages }}
-          CONFIG: ${{ steps.packages.outputs.config }}
+          CONFIG: ${{ steps.config.outputs.config }}
 
       - uses: ncipollo/release-action@v1
         with:
