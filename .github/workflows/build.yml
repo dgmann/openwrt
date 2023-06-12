@@ -52,6 +52,7 @@ jobs:
             -v ./files/:/builder/files:z \
             -v ./build.sh:/builder/build.sh:z \
             -e PACKAGES \
+            -e CONFIG \
             "$IMAGE" ./build.sh
           
           mkdir ./release

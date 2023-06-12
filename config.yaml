@@ -13,4 +13,4 @@ packages:
   - qemu-ga
   - avahi-daemon
 config:
-  CONFIG_TARGET_ROOTFS_PARTSIZE: 200
+  CONFIG_TARGET_ROOTFS_PARTSIZE: 120
