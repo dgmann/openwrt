@@ -15,7 +15,6 @@ jobs:
       matrix:
         openwrt_version: ["22.03"]
         netclient_version: ["v0.18.7"]
-        cloudflared_version: ["2023.1.0"]
     permissions:
       contents: write
 
@@ -28,12 +27,8 @@ jobs:
 
           wget -O ./files/usr/bin/netclient https://github.com/gravitl/netclient/releases/download/${NETCLIENT_VERSION}/netclient-linux-arm64 && \
               chmod +x ./files/usr/bin/netclient
-          
-          wget -O ./files/usr/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/download/${CLOUDFLARED_VERSION}/cloudflared-linux-arm64 && \
-              chmod +x ./files/usr/bin/cloudflared
         env:
           NETCLIENT_VERSION: ${{ matrix.netclient_version }}
-          CLOUDFLARED_VERSION: ${{ matrix.cloudflared_version }}
 
       - name: Define Packages
         id: packages
