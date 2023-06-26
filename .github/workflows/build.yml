@@ -35,6 +35,7 @@ jobs:
           chmod +x ./files/usr/bin/netbird
         env:
           NETCLIENT_VERSION: ${{ matrix.netclient_version }}
+          NETBIRD_VERSION: ${{ matrix.netbird_version }}
 
       - name: Define Packages
         id: packages
