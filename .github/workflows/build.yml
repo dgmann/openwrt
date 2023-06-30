@@ -14,7 +14,6 @@ jobs:
     strategy:
       matrix:
         openwrt_version: ["22.03"]
-        netclient_version: ["v0.18.7"]
         netbird_version: ["0.21.7"]
     permissions:
       contents: write
@@ -26,15 +25,11 @@ jobs:
         run: |
           mkdir -p ./files/usr/bin/
 
-          wget -O ./files/usr/bin/netclient https://github.com/gravitl/netclient/releases/download/${NETCLIENT_VERSION}/netclient-linux-arm64 && \
-            chmod +x ./files/usr/bin/netclient
-
           wget -O netbird.tar.gz https://github.com/netbirdio/netbird/releases/download/v${NETBIRD_VERSION}/netbird_${NETBIRD_VERSION}_linux_arm64.tar.gz
           tar -xvf netbird.tar.gz
           mv netbird ./files/usr/bin/netbird
           chmod +x ./files/usr/bin/netbird
         env:
-          NETCLIENT_VERSION: ${{ matrix.netclient_version }}
           NETBIRD_VERSION: ${{ matrix.netbird_version }}
 
       - name: Define Packages
